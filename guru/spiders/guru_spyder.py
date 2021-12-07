@@ -13,21 +13,21 @@ from selenium.webdriver.support import expected_conditions as EC
 class GuruSpider(scrapy.Spider):
     name = "guru"
     allowed_domains = ["guru.com"]
-    start_urls = ['https://www.guru.com/d/freelancers/']
+    start_urls = ['https://www.guru.com/d/freelancers/c/programming-development/sc/web-development-design/']
 
     def parse(self, response):
         self.logger.info('Parse function called on {}'.format(response.url))
 
         # getting all the freelancers on the page
-        freelancers = response.css('p.freelancerAvatar_screenName > a')
+        freelancers = response.css("div.avatarinfo > h3 > a")
 
         self.logger.info('CYCLING COMPANIES ON THE PAGE')
+        self.logger.info(len(freelancers))
 
         for freelancer in freelancers:
 
             # get freelancer url
-            freelancer_guru_url = freelancer.css('a::attr(href)').get()                        
-
+            freelancer_guru_url = freelancer.css('a::attr(href)').get()
             # go to the freelancer page
             yield response.follow(freelancer_guru_url, self.parse_freelancer)
 
@@ -37,7 +37,7 @@ class GuruSpider(scrapy.Spider):
 
     def parse_freelancer(self, response):
 
-        path = 'valuetoday\driver\chromedriver.exe'
+        path = 'guru/driver/chromedriver.exe'
         options = webdriver.ChromeOptions()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
@@ -46,45 +46,110 @@ class GuruSpider(scrapy.Spider):
         driver.get(response.request.url)
 
         # Implicit wait
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(1)
         # Explicit wait
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(driver, 1)
 
 
         
-        # try:
-        #     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.field.field--name-node-title.field--type-ds.field--label-hidden.field--item > h1 > a")))
-        #     -- = driver.find_elements_by_css_selector("div.field.field--name-node-title.field--type-ds.field--label-hidden.field--item > h1 > a")
-        #     -- = --[0].get_attribute('outerText')
-        # except:
-        #     -- = ''
-
-
-    
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1 > strong")))
+            name = driver.find_elements_by_css_selector("h1 > strong")
+            name = name[0].get_attribute('outerText')
+        except:
+            name = ''
         
-        # try:
-        #     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.clearfix.col-sm-12.field.field--name-field-freelancer-sub-category-.field--type-entity-reference.field--label-above > div.field--items > div")))
-        #     __ = driver.find_elements_by_css_selector("div.clearfix.col-sm-12.field.field--name-field-freelancer-sub-category-.field--type-entity-reference.field--label-above > div.field--items > div")
-        #     -- = ""
-        #     for s in __:
-        #         -- = -- + s.get_attribute('outerText') + ', '
-        # except:
-        #     -- = ''
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "p.profile-avatarinfolocation > span:nth-child(2)")))
+            country = driver.find_elements_by_css_selector("p.profile-avatarinfolocation > span:nth-child(2)")
+            country = country[0].get_attribute('outerText')
+        except:
+            country = ''
 
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#feedback-percent > strong ")))
+            rating = driver.find_elements_by_css_selector("#feedback-percent > strong ")
+            rating = rating[0].get_attribute('outerText')
+        except:
+            rating = ''
 
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(2)")))
+            all_time_earnings = driver.find_elements_by_css_selector("#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(2)")
+            all_time_earnings = all_time_earnings[0].get_attribute('outerText')
+        except:
+            all_time_earnings = ''
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(6)")))
+            number_of_employers = driver.find_elements_by_css_selector("#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(6)")
+            number_of_employers = number_of_employers[0].get_attribute('outerText')
+        except:
+            number_of_employers = ''
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(10)")))
+            member_since = driver.find_elements_by_css_selector("#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(10)")
+            member_since = member_since[0].get_attribute('outerText')
+        except:
+            all_time_earnings = ''
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#visit-website")))
+            website = driver.find_elements_by_css_selector("#visit-website")
+            website = website[0].get_attribute('href')
+        except:
+            website = ''
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#aboutUs > div > p:nth-child(2)")))
+            description = driver.find_elements_by_css_selector("#aboutUs > div > p:nth-child(2)")
+            description = description[0].get_attribute('outerText')
+        except:
+            description = ''
+        
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#topSkills > li")))
+            skills = driver.find_elements_by_css_selector("#topSkills > li")
+            guru_skills = ""
+            for s in skills:
+                guru_skills = guru_skills + s.get_attribute('outerText') + ', '
+        except:
+            guru_skills = ''
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#ctl00_guB_ucProfileOverview_divServicesList > div > div > ul > li > div > div.serviceListing__details > h2 > a > span")))
+            services = driver.find_elements_by_css_selector("#ctl00_guB_ucProfileOverview_divServicesList > div > div > ul > li > div > div.serviceListing__details > h2 > a > span")
+            guru_services = ''
+            for s in services:
+                guru_services = guru_services + s.get_attribute('outerText') + ', '
+        except:
+            guru_services = ''
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "p.serviceListing__rates")))
+            prices_per_hour = driver.find_elements_by_css_selector("p.serviceListing__rates")
+            guru_avg_price_per_hour = 0
+            for p in prices_per_hour:
+                price = p.get_attribute('outerText').split()[0]
+                price = int(price[1:-3])
+                self.logger.info(price)
+                guru_avg_price_per_hour = guru_avg_price_per_hour + price
+            guru_avg_price_per_hour = guru_avg_price_per_hour / len(prices_per_hour)
+        except:
+            guru_avg_price_per_hour = 0
+            
 
         loader = ItemLoader(item=GuruItem(), response=response)
-        # loader.add_value('freelancerName', freelancerName)
-        # loader.add_value('worldRank', worldRank)
-        # loader.add_value('marketValue', marketValue)
-        # loader.add_value('annualRevenueUSD', annualRevenueUSD)
-        # loader.add_value('headquartersCountry', headquartersCountry)
-        # loader.add_value('freelancerBusiness', freelancerBusiness)
-        # loader.add_value('businessSector', businessSector)
-        # loader.add_value('CEO', CEO)
-        # loader.add_value('founders', founders)
-        # loader.add_value('foundedYear', foundedYear)
-        # loader.add_value('nEmployees', nEmployees)
-        # loader.add_value('webSite', webSite)
+        loader.add_value('name', name)
+        loader.add_value('country', country)
+        loader.add_value('rating', rating)
+        loader.add_value('number_of_employers', number_of_employers)
+        loader.add_value('member_since', member_since)
+        loader.add_value('website', website)
+        loader.add_value('description', description)
+        loader.add_value('guru_skills', guru_skills)
+        loader.add_value('guru_services', guru_services)
+        loader.add_value('guru_avg_price_per_hour', str(guru_avg_price_per_hour))
 
         yield loader.load_item()
