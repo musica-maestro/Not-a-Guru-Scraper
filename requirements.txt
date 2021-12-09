@@ -1,3 +1,0 @@
-colorlib
-selenium
-scrapy-selenium
