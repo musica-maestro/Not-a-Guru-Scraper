@@ -1,7 +1,7 @@
 from contextlib import nullcontext
 from warnings import catch_warnings
 import scrapy
-from scrapy.loader import ItemLoader
+from itemloaders import ItemLoader
 
 from guru.items import GuruItem
 
