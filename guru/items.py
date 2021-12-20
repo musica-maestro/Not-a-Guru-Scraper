@@ -22,7 +22,7 @@ class GuruItem(scrapy.Item):
         output_processor = TakeFirst()
     )
     country  = Field(
-        input_processor = MapCompose(country_parser),
+        input_processor = MapCompose(str.strip),
         output_processor = TakeFirst()
     )
     number_of_employers  = Field(

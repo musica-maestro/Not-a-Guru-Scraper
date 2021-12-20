@@ -46,9 +46,9 @@ class GuruSpider(scrapy.Spider):
         driver.get(response.request.url)
 
         # Implicit wait
-        driver.implicitly_wait(1)
+        driver.implicitly_wait(0.3)
         # Explicit wait
-        wait = WebDriverWait(driver, 1)
+        wait = WebDriverWait(driver, 0.3)
 
 
         
@@ -60,8 +60,8 @@ class GuruSpider(scrapy.Spider):
             name = ''
         
         try:
-            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "p.profile-avatarinfolocation > span:nth-child(2)")))
-            country = driver.find_elements_by_css_selector("p.profile-avatarinfolocation > span:nth-child(2)")
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "p.profile-avatar__info__location > span:nth-child(2)")))
+            country = driver.find_elements_by_css_selector("p.profile-avatar__info__location > span:nth-child(2)")
             country = country[0].get_attribute('outerText')
         except:
             country = ''
