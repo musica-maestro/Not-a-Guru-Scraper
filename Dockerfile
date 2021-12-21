@@ -1,8 +1,9 @@
-FROM scrapinghub/scrapinghub-stack-scrapy:1.3
+FROM scrapinghub/scrapinghub-stack-scrapy:2.1
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install zip unzip
+RUN sudo apt-get -y install zip unzip
+RUN pip install --upgrade pip
 
 #============================================
 # Google Chrome

@@ -49,3 +49,11 @@ class GuruItem(scrapy.Item):
         input_processor = MapCompose(str.strip),
         output_processor = TakeFirst()
     )
+    transactions  = Field(
+        input_processor = MapCompose(str.strip),
+        output_processor = TakeFirst()
+    )
+    all_time_earnings  = Field(
+        input_processor = MapCompose(str.strip),
+        output_processor = TakeFirst()
+    )

@@ -13,7 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 class GuruSpider(scrapy.Spider):
     name = "guru"
     allowed_domains = ["guru.com"]
-    start_urls = ['https://www.guru.com/d/freelancers/c/programming-development/sc/web-development-design/']
+    start_urls = ['https://www.guru.com/d/freelancers']
 
     def parse(self, response):
         self.logger.info('Parse function called on {}'.format(response.url))
@@ -43,13 +43,13 @@ class GuruSpider(scrapy.Spider):
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
-        driver = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
-        #driver = webdriver.Chrome(executable_path=path, options=options)
+        #driver = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
+        driver = webdriver.Chrome(executable_path=path, options=options)
 
         driver.get(response.request.url)
 
         # Explicit wait
-        wait = WebDriverWait(driver, 0.3)
+        wait = WebDriverWait(driver, 0.01)
 
 
         
@@ -93,7 +93,7 @@ class GuruSpider(scrapy.Spider):
             member_since = driver.find_elements_by_css_selector("#freelancer-details > div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(10)")
             member_since = member_since[0].get_attribute('outerText')
         except:
-            all_time_earnings = ''
+            member_since = ''
 
         try:
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#visit-website")))
@@ -108,7 +108,14 @@ class GuruSpider(scrapy.Spider):
             description = description[0].get_attribute('outerText')
         except:
             description = ''
-        
+
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(4)")))
+            transactions = driver.find_elements_by_css_selector("div.p-box.p-identity > div:nth-child(2) > dl > dd:nth-child(4)")
+            transactions = transactions[0].get_attribute('outerText')
+        except:
+            transactions = ''
+
         try:
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#topSkills > li")))
             skills = driver.find_elements_by_css_selector("#topSkills > li")
@@ -138,7 +145,7 @@ class GuruSpider(scrapy.Spider):
                 guru_avg_price_per_hour = guru_avg_price_per_hour + price
             guru_avg_price_per_hour = guru_avg_price_per_hour / len(prices_per_hour)
         except:
-            guru_avg_price_per_hour = 0
+            guru_avg_price_per_hour = ''
             
 
         loader = ItemLoader(item=GuruItem(), response=response)
@@ -151,6 +158,8 @@ class GuruSpider(scrapy.Spider):
         loader.add_value('description', description)
         loader.add_value('guru_skills', guru_skills)
         loader.add_value('guru_services', guru_services)
+        loader.add_value('transactions', transactions)
+        loader.add_value('all_time_earnings', all_time_earnings)
         loader.add_value('guru_avg_price_per_hour', str(guru_avg_price_per_hour))
 
         yield loader.load_item()
